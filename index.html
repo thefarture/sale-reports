@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sale Finder · Sat, Oct 10</title>
+<meta property="og:title" content="Shreveport sales · Sat, Oct 10">
+<meta property="og:description" content="9 sales this weekend, 0 matching the wish list, 8-stop Saturday route.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{--bg:#f6f4ef;--surface:#fff;--ink:#1f1d1a;--muted:#6b665e;--line:#e4dfd5;--accent:#c2410c;--accent-soft:#fdeee4;--match:#15803d;--match-soft:#e7f5ec;--estate:#7c3aed;--garage:#0369a1;--moving:#a16207;--shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151412;--surface:#1f1d1a;--ink:#f1ede6;--muted:#a39d92;--line:#35322d;--accent:#fb923c;--accent-soft:#3a2416;--match:#4ade80;--match-soft:#16301f;--estate:#c4b5fd;--garage:#7dd3fc;--moving:#fcd34d;--shadow:none}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 12px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:clamp(26px,6vw,38px);line-height:1.15;margin:6px 0 8px}
+h2{font-size:21px;margin:36px 0 12px}
+h3{font-size:17px;margin:4px 0 6px;line-height:1.3}
+.muted{color:var(--muted)}.small{font-size:14px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+.stat b{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;padding:11px 16px;border-radius:10px;margin:10px 0}
+@media (prefers-color-scheme:dark){.btn{color:#1a0f08}}
+#map{height:min(60vh,440px);border-radius:14px;border:1px solid var(--line);background:var(--surface);margin:12px 0}
+.itinerary{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.itinerary li{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+.it-time{font-weight:700;font-variant-numeric:tabular-nums}
+.it-title{font-weight:600;color:var(--ink)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card.is-match{border-color:var(--match)}
+.card:target{outline:3px solid var(--accent)}
+.thumb{width:100%;height:150px;object-fit:cover;display:block;background:var(--line)}
+.card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:2px;flex:1}
+.kicker{display:flex;justify-content:space-between;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.kind-estate{color:var(--estate)}.kind-garage{color:var(--garage)}.kind-moving{color:var(--moving)}.kind-other{color:var(--muted)}
+.dist{color:var(--muted)}
+.hits{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.hit{background:var(--match-soft);color:var(--match);border-radius:999px;padding:2px 9px;font-size:13px;font-weight:600}
+.hit.high{background:var(--accent-soft);color:var(--accent)}
+.avoid{font-size:13px;color:var(--muted)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:6px 0;font-size:14px}
+dt{color:var(--muted)}dd{margin:0}
+.desc{font-size:14px;color:var(--muted);margin:6px 0;white-space:pre-line;overflow-wrap:anywhere}
+.sources{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.sources span{color:var(--muted)}
+.src{border:1px solid var(--line);border-radius:8px;padding:3px 8px;text-decoration:none;font-weight:600}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.filters button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.manual{padding-left:18px;font-size:15px}.manual li{margin:8px 0}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted)}
+footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.leaflet-container{font:inherit}
+.pin{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pin.home{background:var(--ink);color:var(--bg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Shreveport–Bossier sale report</div>
+  <h1>Weekend of Sat, Oct 10</h1>
+  <div class="muted small">Updated Sat, Oct 10, 1:37 AM · always confirm on the source listing before you drive</div>
+  <div class="stats">
+    <span class="stat"><b>9</b> sales found</span>
+    <span class="stat"><b>9</b> open Saturday</span>
+    <span class="stat"><b>0</b> match your list</span>
+    <span class="stat"><b>8</b>-stop route</span>
+  </div>
+</header>
+
+<h2>Best matches</h2>
+<div class="empty">Nothing this weekend mentions your wish-list items in the listing text. Estate sales often have far more than they list, so check the photos on the route below.</div>
+
+<h2>Saturday route</h2>
+<div class="muted small">Leaves at 7 AM. Drive times are estimates. Starts at the first stop, since your home isn't shown publicly.</div>
+<a class="btn" href="https://www.google.com/maps/dir/?api=1&#38;destination=32.59308421%2C-93.8525143&#38;travelmode=driving&#38;waypoints=32.417592%2C-93.7086%7C32.4546143%2C-93.7095009%7C32.489086%2C-93.75571%7C32.547093%2C-93.718803%7C32.4542001%2C-93.746479%7C32.405305%2C-93.790267%7C32.445868%2C-93.869461" target="_blank" rel="noopener">Open route in Google Maps ↗</a>
+<div id="map" role="img" aria-label="Map of sales and the Saturday route"></div>
+<ol class="itinerary"><li>
+      <span class="num">1</span>
+      <div>
+        <div class="it-time">7:14 AM <span class="muted">– 7:34 AM</span></div>
+        <a class="it-title" href="#gsalr_38959747">GARAGE SALES: TWO HOUSES, ONE STREET</a>
+        <div class="muted small">Yard sale · 9618 Gardere Dr, Shreveport · ~14 min drive · hours not listed, check</div>
+        
+      </div>
+    </li><li>
+      <span class="num">2</span>
+      <div>
+        <div class="it-time">8 AM <span class="muted">– 8:30 AM</span></div>
+        <a class="it-title" href="#esnet_5104701">East Southfield Tag Sale</a>
+        <div class="muted small">Estate sale · 222east Southfield, Shreveport · ~7 min drive · opens 8 AM</div>
+        
+      </div>
+    </li><li>
+      <span class="num">3</span>
+      <div>
+        <div class="it-time">8:40 AM <span class="muted">– 9 AM</span></div>
+        <a class="it-title" href="#cl_5pzcVyZccXwvM49HRjqkfc">Halloween Sale</a>
+        <div class="muted small">Yard sale · 1320 Dalzell near Samford, Shreveport · ~10 min drive</div>
+        
+      </div>
+    </li><li>
+      <span class="num">4</span>
+      <div>
+        <div class="it-time">9:13 AM <span class="muted">– 9:33 AM</span></div>
+        <a class="it-title" href="#cl_uUkiUmt5oCAWWtizvvfMVM">Holidays and more in Old Greenacres!</a>
+        <div class="muted small">Yard sale · 2318 BELMONT BLVD near Deas St., Bossier City · ~13 min drive</div>
+        
+      </div>
+    </li><li>
+      <span class="num">5</span>
+      <div>
+        <div class="it-time">10 AM <span class="muted">– 10:30 AM</span></div>
+        <a class="it-title" href="#esnet_5108010">Caboose Antiques - Come Look</a>
+        <div class="muted small">Estate sale · 855 Pierremont  suite 152, Shreveport · ~19 min drive · opens 10 AM</div>
+        
+      </div>
+    </li><li>
+      <span class="num">6</span>
+      <div>
+        <div class="it-time">10:42 AM <span class="muted">– 11:02 AM</span></div>
+        <a class="it-title" href="#cl_keUQuWBeFUDUHz1VcHnpML">Everything needs to go!!!</a>
+        <div class="muted small">Yard sale · 2023 Beth Lane near Blom, Brookwood · ~12 min drive</div>
+        
+      </div>
+    </li><li>
+      <span class="num">7</span>
+      <div>
+        <div class="it-time">11:18 AM <span class="muted">– 11:38 AM</span></div>
+        <a class="it-title" href="#cl_pvdE8y11JvSCehruBnr4Mc">Small Yard Sale</a>
+        <div class="muted small">Yard sale · 6850 Klug Pines Rd./Huntington Mobile Home Park near W.70th/ Westport Ave · ~16 min drive · hours not listed, check</div>
+        
+      </div>
+    </li><li>
+      <span class="num">8</span>
+      <div>
+        <div class="it-time">12:08 PM <span class="muted">– 12:28 PM</span></div>
+        <a class="it-title" href="#gsalr_38957281">Autumn Garage Sale</a>
+        <div class="muted small">Yard sale · 8301 Forest Cove Dr, Shreveport · ~30 min drive · hours not listed, check</div>
+        
+      </div>
+    </li></ol>
+
+<h2>All sales this weekend</h2>
+<div class="filters" role="group" aria-label="Filter sales">
+  <button aria-pressed="true" data-f="all">All 9</button>
+  <button aria-pressed="false" data-f="sat">Saturday</button>
+  <button aria-pressed="false" data-f="match">Matches</button>
+  <button aria-pressed="false" data-f="estate">Estate</button>
+  <button aria-pressed="false" data-f="garage">Yard</button>
+</div>
+<div class="grid" id="all"><article class="card" data-tags="estate sat" id="esnet_5108010">
+  <img class="thumb" src="https://picturescdn.estatesales.net/5108010/1-2/fc76f422-ea2a-455d-b822-64b6af3f8f5f.jpg" alt="" loading="lazy">
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-estate">Estate sale</span></div>
+    <h3>Caboose Antiques - Come Look</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 10 AM–5 PM</dd>
+      <dt>Where</dt><dd>855 Pierremont  suite 152, Shreveport <a href="https://www.google.com/maps/search/?api=1&query=32.4542001,-93.746479" target="_blank" rel="noopener">map</a></dd>
+      <dt>By</dt><dd>Red River Antiques And Estate Sales · <a href="tel:3185055437">3185055437</a></dd>
+    </dl>
+    <p class="desc">Buyouts Or Cleanout</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.estatesales.net/LA/Shreveport/71106/5108010" target="_blank" rel="noopener">EstateSales.net ↗</a></div>
+  </div>
+</article><article class="card" data-tags="estate sat" id="esnet_5104701">
+  <img class="thumb" src="https://picturescdn.estatesales.net/5104701/1-2/1cdfaa63-04c2-4187-bdd3-433cd1b1db46.jpg" alt="" loading="lazy">
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-estate">Estate sale</span></div>
+    <h3>East Southfield Tag Sale</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 8 AM–2 PM</dd>
+      <dt>Where</dt><dd>222east Southfield, Shreveport <a href="https://www.google.com/maps/search/?api=1&query=32.4546143,-93.7095009" target="_blank" rel="noopener">map</a></dd>
+      <dt>By</dt><dd>Carole&#39;s Estates · <a href="tel:3182721692">(318) 272-1692</a></dd>
+    </dl>
+    <p class="desc">We’ve got a fun sale for you guys!
+Still uncovering items, so we will probably add more images soon.
+vintage audio equipment
+Bernina sewing machine
+Vintage Elma sewing machine
+Vintage...</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.estatesales.net/LA/Shreveport/71105/5104701" target="_blank" rel="noopener">EstateSales.net ↗</a><a class="src" href="https://gsalr.com/east-southfield-tag-sale-shreveport-la-38950375.html" target="_blank" rel="noopener">gsalr.com ↗</a></div>
+  </div>
+</article><article class="card" data-tags="estate sat" id="esnet_5106138">
+  <img class="thumb" src="https://picturescdn.estatesales.net/5106138/1-2/9f8c9c7f-b90a-4cb9-8993-d3a6b3621b42.jpg" alt="" loading="lazy">
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-estate">Estate sale</span></div>
+    <h3>Allums Estate Solutions and Services</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 9 AM–4 PM<br>Sun, Oct 11 · 9 AM–3 PM</dd>
+      <dt>Where</dt><dd>10763 Ferry Lake Rd, Oil City <a href="https://www.google.com/maps/search/?api=1&query=32.7391806,-94.0237961" target="_blank" rel="noopener">map</a></dd>
+      <dt>By</dt><dd>Allums Estate Solutions And Servicea · <a href="tel:3184890893">(318) 489-0893</a></dd>
+    </dl>
+    <p class="desc">Hello all! We at Allums Estate Solutions and Services are offering our best estate sale yet on October 9,10, and 11th. On the banks of Caddo Lake in Oil City, La. Just a 20 minute drive north of...</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.estatesales.net/LA/Oil%20City/71061/5106138" target="_blank" rel="noopener">EstateSales.net ↗</a><a class="src" href="https://gsalr.com/allums-estate-solutions-and-oil-city-la-38952203.html" target="_blank" rel="noopener">gsalr.com ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="cl_5pzcVyZccXwvM49HRjqkfc">
+  
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>Halloween Sale</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 8 AM–12 PM</dd>
+      <dt>Where</dt><dd>1320 Dalzell near Samford, Shreveport <a href="https://www.google.com/maps/search/?api=1&query=32.489086,-93.75571" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">2nd Time Treasures......1320 Dalzell Shreveport 71103 Saturday 10/10 8am-NOON
+Halloween Halloween Halloween..........costumes, decorations, candy bags........everything you need all in one spot
+Plus our normal uniques and antiques
+Something for everyone on any level no doubt. 4000 SF of needful things
+Come treasure hun…</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.craigslist.org/view/d/shreveport-halloween-sale/5pzcVyZccXwvM49HRjqkfc" target="_blank" rel="noopener">Craigslist ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="cl_uUkiUmt5oCAWWtizvvfMVM">
+  
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>Holidays and more in Old Greenacres!</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 8 AM–1 PM</dd>
+      <dt>Where</dt><dd>2318 BELMONT BLVD near Deas St., Bossier City <a href="https://www.google.com/maps/search/?api=1&query=32.547093,-93.718803" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">&#39;Tis the season! Decor for Halloween/Harvest/Christmas - all at great prices! CASH ONLY.
+Men&#39;s /women&#39;s clothes in assorted sizes - $1 each! Women&#39;s Boutique rack - $5 each. Women&#39;s shoes &#38; accessories.
+Costume jewelry - $1 each.
+- Small furniture, including park bench, wood tables, etc.
+- Camping chairs
+- Yard art and…</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.craigslist.org/view/d/bossier-city-holidays-and-more-in-old/uUkiUmt5oCAWWtizvvfMVM" target="_blank" rel="noopener">Craigslist ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="gsalr_38959747">
+  <img class="thumb" src="https://gsf.tlstatic.com/image/w100-c10:7/2026/10/09/s/3/3/21789333/XmPSi-0.jpeg" alt="" loading="lazy">
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>GARAGE SALES: TWO HOUSES, ONE STREET</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10</dd>
+      <dt>Where</dt><dd>9618 Gardere Dr, Shreveport <a href="https://www.google.com/maps/search/?api=1&query=32.417592,-93.7086" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">🏘 GARAGE SALES - TWO HOUSES 🛍
+9618 &#38; 9619 Gardere Drive Shreveport 71115
+(right across from each other)
+October 10, 2026 from 8 a.m. until ?
+🏷 Items for sale include (but are not limited to) the following:
+workout equipment
+shoes
+furniture
+women&#39;s clothing (including plus size)
+scarves
+furniture
+holiday decor
+sports…</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://gsalr.com/garage-sales-two-houses-shreveport-la-38959747.html" target="_blank" rel="noopener">gsalr.com ↗</a><a class="src" href="https://www.craigslist.org/view/d/shreveport-garage-sales-two-houses-one/5TEy3AY5U687uEjZrDBwCU" target="_blank" rel="noopener">Craigslist ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="cl_keUQuWBeFUDUHz1VcHnpML">
+  
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>Everything needs to go!!!</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10 · 8 AM–3 PM</dd>
+      <dt>Where</dt><dd>2023 Beth Lane near Blom, Brookwood <a href="https://www.google.com/maps/search/?api=1&query=32.405305,-93.790267" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">8am til 3pm
+Newborn &#38; Infant clothing, Toddler Onesies
+Little Girls Shoes, Dresses, Tops and Bottoms
+Ladies and Women Purses, Shoes, Dresses, Tops and Bottoms
+Men’s Suits, Dress Shirts, Button Downs, Ties and Pocket Squares
+Men, women, boys and girls sneakers. Air Jordan priced separately.
+Marshall Pottery
+Coffee Cups…</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.craigslist.org/view/d/shreveport-everything-needs-to-go/keUQuWBeFUDUHz1VcHnpML" target="_blank" rel="noopener">Craigslist ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="cl_pvdE8y11JvSCehruBnr4Mc">
+  
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>Small Yard Sale</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10<br>Sun, Oct 11</dd>
+      <dt>Where</dt><dd>6850 Klug Pines Rd./Huntington Mobile Home Park near W.70th/ Westport Ave <a href="https://www.google.com/maps/search/?api=1&query=32.445868,-93.869461" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">Small curio cabinet. wagon, trunk, mins sizes women’s clothes and shoes, misc items,
+NO EARLY BIRDS
+9:00 a.m. Til</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://www.craigslist.org/view/d/shreveport-small-yard-sale/pvdE8y11JvSCehruBnr4Mc" target="_blank" rel="noopener">Craigslist ↗</a></div>
+  </div>
+</article><article class="card" data-tags="garage sat" id="gsalr_38957281">
+  <img class="thumb" src="https://gsf.tlstatic.com/image/w100-c10:7/2026/10/08/s/7/5/21786875/XEdIA-0.jpeg" alt="" loading="lazy">
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-garage">Yard sale</span></div>
+    <h3>Autumn Garage Sale</h3>
+    
+    
+    <dl>
+      <dt>When</dt><dd>Sat, Oct 10</dd>
+      <dt>Where</dt><dd>8301 Forest Cove Dr, Shreveport <a href="https://www.google.com/maps/search/?api=1&query=32.59308421,-93.8525143" target="_blank" rel="noopener">map</a></dd>
+      
+    </dl>
+    <p class="desc">Antique wood, round dining table with claw feet and 4 chairs, Dresser , Twin sleigh bed with mattress and sheets , TV, receiver , DVD player, Antique white enamel box refrigerator ,...</p>
+    <div class="sources"><span>Verify:</span><a class="src" href="https://gsalr.com/autumn-garage-sale-shreveport-la-38957281.html" target="_blank" rel="noopener">gsalr.com ↗</a></div>
+  </div>
+</article></div>
+
+<h2>Check these by hand</h2>
+<p class="muted small">Facebook and Nextdoor require a login and block automated searching, so they're not in the list above. These links open the right searches.</p>
+<ul class="manual">
+    <li><strong>Facebook Marketplace</strong> — <a href="https://www.facebook.com/marketplace/shreveport/search/?query=garage%20sale" target="_blank" rel="noopener">garage sale</a> · <a href="https://www.facebook.com/marketplace/shreveport/search/?query=estate%20sale" target="_blank" rel="noopener">estate sale</a> · <a href="https://www.facebook.com/marketplace/shreveport/search/?query=music" target="_blank" rel="noopener">music</a> · <a href="https://www.facebook.com/marketplace/shreveport/search/?query=mid%20century" target="_blank" rel="noopener">mid century</a> · <a href="https://www.facebook.com/marketplace/shreveport/search/?query=computer" target="_blank" rel="noopener">computer</a> · <a href="https://www.facebook.com/marketplace/shreveport/search/?query=vinyl" target="_blank" rel="noopener">vinyl</a></li>
+    <li><strong>Facebook groups</strong> — <a href="https://www.facebook.com/search/groups/?q=shreveport%20yard%20sale" target="_blank" rel="noopener">Shreveport yard sale groups</a> · <a href="https://www.facebook.com/search/groups/?q=bossier%20garage%20sale" target="_blank" rel="noopener">Bossier garage sale groups</a></li>
+    <li><strong>Craigslist for-sale</strong> — <a href="https://shreveport.craigslist.org/search/sss?query=music" target="_blank" rel="noopener">music</a> · <a href="https://shreveport.craigslist.org/search/sss?query=mid%20century" target="_blank" rel="noopener">mid century</a> · <a href="https://shreveport.craigslist.org/search/sss?query=computer" target="_blank" rel="noopener">computer</a> · <a href="https://shreveport.craigslist.org/search/sss?query=vinyl" target="_blank" rel="noopener">vinyl</a></li>
+    <li><strong>Nextdoor</strong> — <a href="https://nextdoor.com/for_sale_and_free/" target="_blank" rel="noopener">For Sale &#38; Free</a></li>
+  </ul>
+
+<footer>
+  Sources: EstateSales.net (20) · gsalr.com (4) · Craigslist (5).
+  
+  Map © OpenStreetMap contributors.
+</footer>
+</div>
+
+<script>
+document.querySelectorAll(".filters button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    document.querySelectorAll(".filters button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    var f = b.dataset.f;
+    document.querySelectorAll("#all .card").forEach(function (c) {
+      c.hidden = f !== "all" && c.dataset.tags.split(" ").indexOf(f) < 0;
+    });
+  });
+});
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function () {
+  var D = {"home":null,"route":[{"n":1,"lat":32.417592,"lon":-93.7086,"title":"GARAGE SALES: TWO HOUSES, ONE STREET","at":"7:14 AM","id":"gsalr_38959747"},{"n":2,"lat":32.4546143,"lon":-93.7095009,"title":"East Southfield Tag Sale","at":"8 AM","id":"esnet_5104701"},{"n":3,"lat":32.489086,"lon":-93.75571,"title":"Halloween Sale","at":"8:40 AM","id":"cl_5pzcVyZccXwvM49HRjqkfc"},{"n":4,"lat":32.547093,"lon":-93.718803,"title":"Holidays and more in Old Greenacres!","at":"9:13 AM","id":"cl_uUkiUmt5oCAWWtizvvfMVM"},{"n":5,"lat":32.4542001,"lon":-93.746479,"title":"Caboose Antiques - Come Look","at":"10 AM","id":"esnet_5108010"},{"n":6,"lat":32.405305,"lon":-93.790267,"title":"Everything needs to go!!!","at":"10:42 AM","id":"cl_keUQuWBeFUDUHz1VcHnpML"},{"n":7,"lat":32.445868,"lon":-93.869461,"title":"Small Yard Sale","at":"11:18 AM","id":"cl_pvdE8y11JvSCehruBnr4Mc"},{"n":8,"lat":32.59308421,"lon":-93.8525143,"title":"Autumn Garage Sale","at":"12:08 PM","id":"gsalr_38957281"}],"other":[{"lat":32.7391806,"lon":-94.0237961,"title":"Allums Estate Solutions and Services","match":false,"id":"esnet_5106138"}]};
+  var el = document.getElementById("map");
+  if (!window.L || !el) { if (el) el.hidden = true; return; }
+  var map = L.map(el, { scrollWheelZoom: false });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap" }).addTo(map);
+  var pts = [];
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); }
+  D.other.forEach(function (o) {
+    L.circleMarker([o.lat, o.lon], { radius: 6, color: o.match ? "#15803d" : "#78716c", weight: 2, fillOpacity: .5 })
+      .addTo(map).bindPopup('<a href="#' + o.id + '">' + esc(o.title) + "</a>");
+    pts.push([o.lat, o.lon]);
+  });
+  var line = [];
+  if (D.home) {
+    L.marker([D.home.lat, D.home.lon], { icon: L.divIcon({ className: "", html: '<div class="pin home">⌂</div>', iconSize: [26, 26] }) }).addTo(map).bindPopup(esc(D.home.label));
+    line.push([D.home.lat, D.home.lon]); pts.push([D.home.lat, D.home.lon]);
+  }
+  D.route.forEach(function (r) {
+    L.marker([r.lat, r.lon], { icon: L.divIcon({ className: "", html: '<div class="pin">' + r.n + "</div>", iconSize: [26, 26] }), zIndexOffset: 1000 })
+      .addTo(map).bindPopup("<b>" + r.n + ". " + r.at + '</b><br><a href="#' + r.id + '">' + esc(r.title) + "</a>");
+    line.push([r.lat, r.lon]); pts.push([r.lat, r.lon]);
+  });
+  if (line.length > 1) L.polyline(line, { color: "#c2410c", weight: 3, opacity: .8, dashArray: "6 6" }).addTo(map);
+  if (pts.length) map.fitBounds(pts, { padding: [30, 30], maxZoom: 14 }); else map.setView([32.5252, -93.7502], 11);
+})();
+</script>
+</body>
+</html>
