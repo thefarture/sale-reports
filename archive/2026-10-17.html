@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sale Finder · Shreveport–Bossier</title>
+<meta property="og:title" content="Shreveport–Bossier garage & estate sales">
+<meta property="og:description" content="13 sales this weekend, with a wish list, map and Saturday route you can customize.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{--bg:#f6f4ef;--surface:#fff;--ink:#1f1d1a;--muted:#6b665e;--line:#e4dfd5;--accent:#c2410c;--accent-soft:#fdeee4;--match:#15803d;--match-soft:#e7f5ec;--estate:#7c3aed;--garage:#0369a1;--moving:#a16207;--shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);--on-accent:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151412;--surface:#1f1d1a;--ink:#f1ede6;--muted:#a39d92;--line:#35322d;--accent:#fb923c;--accent-soft:#3a2416;--match:#4ade80;--match-soft:#16301f;--estate:#c4b5fd;--garage:#7dd3fc;--moving:#fcd34d;--shadow:none;--on-accent:#1a0f08}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 8px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:clamp(26px,6vw,38px);line-height:1.15;margin:6px 0 8px}
+h2{font-size:21px;margin:36px 0 12px;scroll-margin-top:12px}
+h3{font-size:17px;margin:4px 0 6px;line-height:1.3}
+.muted{color:var(--muted)}.small{font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:16px 0}
+.panel>summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+.panel>summary::-webkit-details-marker{display:none}
+.panel>summary::after{content:"▾";color:var(--muted)}
+.panel:not([open])>summary::after{content:"▸"}
+.panel-body{padding:0 16px 16px;display:grid;gap:18px}
+@media (min-width:760px){.panel-body{grid-template-columns:1fr 1fr}.panel-body .full{grid-column:1/-1}}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{font-weight:700;font-size:15px;padding:0;margin-bottom:2px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 8px}
+label{display:block;font-size:13px;font-weight:600;margin:8px 0 4px}
+input,select{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;font-weight:600}
+button:disabled{opacity:.55;cursor:default}
+.kw{display:grid;grid-template-columns:38px minmax(0,1fr) 34px;gap:6px;align-items:center;margin-bottom:6px}
+.star{padding:0;height:40px;font-size:17px;color:var(--muted)}
+.star[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+.del{padding:0;height:40px;border:none;background:none;color:var(--muted);font-size:20px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 2px 2px 10px;font-size:14px}
+.chip button{border:none;background:none;padding:2px 8px;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:flex-start;font-weight:400;font-size:14px;margin-top:10px}
+.check input{width:auto;margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);padding:11px 22px;font-size:16px}
+#form-status{font-size:14px;color:var(--muted)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+.stat b{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--on-accent);text-decoration:none;font-weight:600;padding:11px 16px;border-radius:10px;margin:10px 0}
+#map{height:min(60vh,440px);border-radius:14px;border:1px solid var(--line);background:var(--surface);margin:12px 0}
+.itinerary{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.itinerary li{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+.it-time{font-weight:700;font-variant-numeric:tabular-nums}
+.it-title{font-weight:600;color:var(--ink)}
+.it-body{flex:1;min-width:0}
+.it-del{flex:none;align-self:flex-start;width:36px;height:36px;padding:0;border:1px solid var(--line);background:var(--bg);color:var(--muted);font-size:20px;line-height:1;border-radius:50%}
+.it-del:hover{color:var(--accent);border-color:var(--accent)}
+.leave{display:flex;gap:12px;align-items:center;background:var(--accent-soft);border-radius:12px;padding:12px;margin-bottom:10px;font-weight:600}
+.leave .num{background:var(--ink);color:var(--bg)}
+.removed{margin-top:12px;font-size:14px;color:var(--muted)}
+.removed button{font-size:13px;padding:3px 10px;margin:4px 6px 0 0;font-weight:500}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card.is-match{border-color:var(--match)}
+.card:target{outline:3px solid var(--accent)}
+.thumb{width:100%;height:150px;object-fit:cover;display:block;background:var(--line)}
+.card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:2px;flex:1}
+.kicker{display:flex;justify-content:space-between;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.kind-estate{color:var(--estate)}.kind-garage{color:var(--garage)}.kind-moving{color:var(--moving)}.kind-other{color:var(--muted)}
+.dist{color:var(--muted)}
+.hits{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.hit{background:var(--match-soft);color:var(--match);border-radius:999px;padding:2px 9px;font-size:13px;font-weight:600}
+.hit.high{background:var(--accent-soft);color:var(--accent)}
+.avoid{font-size:13px;color:var(--muted)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:6px 0;font-size:14px}
+dt{color:var(--muted)}dd{margin:0}
+.desc{font-size:14px;color:var(--muted);margin:6px 0;white-space:pre-line;overflow-wrap:anywhere}
+.sources{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.sources span{color:var(--muted)}
+.src{border:1px solid var(--line);border-radius:8px;padding:3px 8px;text-decoration:none;font-weight:600}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.filters button{font-size:14px;border-radius:999px;padding:6px 13px;font-weight:500}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.manual{padding-left:18px;font-size:15px}.manual li{margin:8px 0}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted)}
+footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.leaflet-container{font:inherit}
+.pin{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:13px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.pin.home{background:var(--ink);color:var(--bg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Shreveport–Bossier sale finder</div>
+  <h1>Weekend of <span id="weekend"></span></h1>
+  <div class="muted small">Listings updated Fri, Oct 16, 4:28 PM (refreshed Friday evening and Saturday morning) · always confirm on the source listing before you drive</div>
+</header>
+
+<form id="search-form">
+<details class="panel" open>
+  <summary>Your search</summary>
+  <div class="panel-body">
+    <fieldset>
+      <legend>Wish list</legend>
+      <p class="hint">Matched against listing titles and descriptions; plurals count. Tap ★ for must-haves, which rank first and get priority in the route.</p>
+      <div id="kw-list"></div>
+      <button type="button" id="kw-add">+ Add item</button>
+    </fieldset>
+    <fieldset>
+      <legend>Starting point &amp; route</legend>
+      <label for="start-mode">Start from</label>
+      <select id="start-mode">
+        <option value="gps">My current location</option>
+        <option value="downtown">Downtown Shreveport</option>
+        <option value="address">An address…</option>
+      </select>
+      <div id="start-addr-wrap"><label for="start-addr">Address</label><input id="start-addr" autocomplete="street-address" placeholder="123 Line Ave, Shreveport"></div>
+      <div class="row2">
+        <div><label for="depart">Leave no earlier than</label><input id="depart" type="time"></div>
+        <div><label for="radius">Within (miles)</label><input id="radius" type="number" inputmode="numeric" min="1" max="150"></div>
+        <div><label for="max-stops">Max stops</label><input id="max-stops" type="number" inputmode="numeric" min="1" max="10"></div>
+        <div><label for="per-stop">Minutes per stop</label><input id="per-stop" type="number" inputmode="numeric" min="5" max="120"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="yard"> Include yard sales in the route, not just estate &amp; moving sales</label>
+      <label for="avoid-input">Skip sales that mention</label>
+      <input id="avoid-input" placeholder="Type a word, press Enter">
+      <div class="chips" id="avoid-list"></div>
+    </fieldset>
+    <div class="actions full">
+      <button type="submit" class="primary" id="update">Update results</button>
+      <button type="button" id="reset">Reset to default list</button>
+      <span id="form-status" role="status"></span>
+    </div>
+    <p class="hint full" id="saved-note" hidden>Your changes are saved in this browser only. Nobody else sees them.</p>
+  </div>
+</details>
+</form>
+
+<div id="results">
+<div class="stats" id="stats"></div>
+
+<h2>Best matches</h2>
+<div id="top"></div>
+
+<h2>Saturday route</h2>
+<div class="muted small" id="route-intro"></div>
+<a class="btn" id="route-btn" target="_blank" rel="noopener" hidden>Open route in Google Maps ↗</a>
+<div id="map" role="img" aria-label="Map of sales and the Saturday route"></div>
+<div class="leave" id="leave" hidden></div>
+<ol class="itinerary" id="itinerary"></ol>
+<div class="removed" id="removed" hidden></div>
+
+<h2>All sales this weekend</h2>
+<div class="filters" role="group" aria-label="Filter sales">
+  <button type="button" aria-pressed="true" data-f="all">All <span id="all-count"></span></button>
+  <button type="button" aria-pressed="false" data-f="sat">Saturday</button>
+  <button type="button" aria-pressed="false" data-f="match">Matches</button>
+  <button type="button" aria-pressed="false" data-f="estate">Estate</button>
+  <button type="button" aria-pressed="false" data-f="garage">Yard</button>
+</div>
+<div class="grid" id="all"></div>
+
+<h2>Check these by hand</h2>
+<p class="muted small">Facebook and Nextdoor require a login and block automated searching, so they're not in the list above. These links open the right searches.</p>
+<div id="manual"></div>
+</div>
+
+<noscript><p class="empty">This page needs JavaScript to show the sales.</p></noscript>
+
+<footer>
+  Sources: EstateSales.net (20) · gsalr.com (3) · Craigslist (2).
+  
+  Map © OpenStreetMap contributors.
+</footer>
+</div>
+
+<script id="sale-data" type="application/json">{"generatedAt":"2026-10-16T21:28:24.766Z","target":"2026-10-17","windowDays":["2026-10-16","2026-10-17","2026-10-18"],"sales":[{"id":"esnet:5111346","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Plain%20Dealing/71064/5111346","title":"Tool Time in Plain Dealing","description":"Estate Sale","kind":"estate","address":"17396 Highway 157","city":"Plain Dealing","lat":32.868359,"lon":-93.654126,"days":[{"date":"2026-10-16","start":"09:00","end":"16:00"},{"date":"2026-10-17","start":"09:00","end":"16:00"}],"image":"https://picturescdn.estatesales.net/5111346/1-2/d0483513-6ab3-496f-8b50-9e72a870fc59.jpg","organizer":"Timeline Estate Sales","phone":"(318) 861-0808","alsoListed":[]},{"id":"esnet:5112846","source":"EstateSales.net","url":"https://www.estatesales.net/TX/Hallsville/75650/5112846","title":"The Weidmer Estate Sale","description":"Estate Sale","kind":"estate","address":"510 North Central","city":"Hallsville","lat":32.512271,"lon":-94.5769789,"days":[{"date":"2026-10-15","start":"09:00","end":"16:00"},{"date":"2026-10-16","start":"09:00","end":"16:00"},{"date":"2026-10-17","start":"09:00","end":"18:00"},{"date":"2026-10-18","start":"10:00","end":"14:00"}],"image":"https://picturescdn.estatesales.net/5112846/1-2/2c1f8a28-9e68-43a3-80e1-417ab24a807a.jpg","organizer":null,"alsoListed":[]},{"id":"esnet:5113869","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Shreveport/71106/5113869","title":"General Patton Picker's Sale","description":"Estate Sale","kind":"estate","address":"11184 Gen Patton Ave.","city":"Shreveport","lat":32.373355,"lon":-93.7603311,"days":[{"date":"2026-10-16","start":"08:00","end":"13:00"},{"date":"2026-10-17","start":"08:00","end":"13:00"}],"image":"https://picturescdn.estatesales.net/5113869/1-2/f56d77cb-bb64-4745-abf0-02ece5c0d656.jpg","organizer":null,"alsoListed":[]},{"id":"esnet:5117922","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Bossier%20City/71112/5117922","title":"NOSTALGIA ESTATE SALES","description":"Estate Sale","kind":"estate","address":"5510 Golden meadows","city":"Bossier City","lat":32.450859,"lon":-93.648481,"days":[{"date":"2026-10-16","start":"09:00","end":"15:00"},{"date":"2026-10-17","start":"09:00","end":"15:00"}],"image":"https://picturescdn.estatesales.net/5117922/1-2/a7dbaef4-480f-43e0-99ee-01c9d3a3385f.jpg","organizer":"Nostalgia Estate Sales","phone":"(318) 200-3795","alsoListed":[]},{"id":"esnet:5118186","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Stonewall/71078/5118186","title":"Sale in Stonewall!","description":"Estate Sale","kind":"estate","address":"290 Donna Dr","city":"Stonewall","lat":32.291169,"lon":-93.811401,"days":[{"date":"2026-10-16","start":"09:00","end":"15:00"},{"date":"2026-10-17","start":"09:00","end":"15:00"}],"image":"https://picturescdn.estatesales.net/5118186/1-2/97463c22-d899-472f-855d-0d8508316d11.jpg","organizer":"Frankie And Johnnie Estate Sales","phone":"(318) 364-0380","alsoListed":[]},{"id":"esnet:5118663","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Bossier%20City/71112/5118663","title":"Eureka Estate Sales","description":"Estate Sale","kind":"estate","address":"1703 Ray Ave","city":"Bossier City","lat":32.482712,"lon":-93.667718,"days":[{"date":"2026-10-16","start":"09:00","end":"15:00"},{"date":"2026-10-17","start":"09:00","end":"15:00"}],"image":"https://picturescdn.estatesales.net/5118663/1-2/4dd0317e-c068-405c-8070-26ced8e32087.jpg","organizer":"Eureka Estate Sales","phone":"(318) 470-4872","alsoListed":[]},{"id":"esnet:5119401","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Shreveport/71104/5119401","title":"A Day in Tealwood!","description":"Estate Sale","kind":"estate","address":"61 Tealwood  St","city":"Shreveport","lat":32.4718022,"lon":-93.74949699999999,"days":[{"date":"2026-10-17","start":"09:00","end":"16:00"}],"image":"https://picturescdn.estatesales.net/5119401/1-2/0b7e7e88-074d-46cb-ad83-f3328416b265.jpg","organizer":"Crawford And Company Estate Sales","phone":"(318) 754-7816","alsoListed":[]},{"id":"esnet:5121819","source":"EstateSales.net","url":"https://www.estatesales.net/LA/Arcadia/71001/5121819","title":"2671 Corley St","description":"Estate Sale","kind":"estate","address":"2671 Corley St","city":"Arcadia","lat":32.544447,"lon":-92.932626,"days":[{"date":"2026-10-17","start":"08:00","end":"17:00"},{"date":"2026-10-18","start":"12:30","end":"16:30"}],"image":"https://picturescdn.estatesales.net/5121819/1-2/c832b9cb-57ee-4045-aa6a-c1670d3b6dd9.jpg","organizer":null,"alsoListed":[]},{"id":"gsalr:38968237","source":"gsalr.com","url":"https://gsalr.com/onlineonly-estate-sale-great-keithville-la-38968237.html","title":"Online-Only Estate Sale: Great Furniture, Vintage Decor, Collectibles & Smalls","description":"Welcome to our online-only straight-sale estate event! Every item is available for immediate purchase on a Buy Now (First Come, First Served) basis with no waiting for bidding to close.\nFeatured...","kind":"other","address":"5996 Colquitt Rd","city":"Keithville","lat":32.3580415,"lon":-93.8660971,"days":[{"date":"2026-10-16"},{"date":"2026-10-17"},{"date":"2026-10-18"}],"image":"https://eso-cdn.tlcdn.workers.dev/a-128033155-2fayumeofpexs5ap-t.jpg","alsoListed":[]},{"id":"gsalr:38964477","source":"gsalr.com","url":"https://gsalr.com/mimis-market-a-collection-marshall-tx-38964477.html","title":"\"Mimi's Market\" : A Collection of Treasures Estate Sale","description":"ESTATE SALE: October 15th-17th! Thursday and Friday, 8am-5pm, Saturday, 8am-3pm. NO Early Sales!\nLots of antique furniture pieces, such as vintage Duncan Phyffe mahogany China Cabinet, 2 Buffets,...","kind":"estate","address":"5015 Farm To Market Rd 3379","city":"Marshall","lat":32.53204228,"lon":-94.42898936,"days":[{"date":"2026-10-15","start":"08:00","end":"17:00"},{"date":"2026-10-16","start":"08:00","end":"17:00"},{"date":"2026-10-17","start":"08:00","end":"17:00"}],"image":"https://dop6twngijzdg.cloudfront.net/image/w100-c10:7/2026/10/13/s/B/T/7HPBT/n3u1-0.jpeg","alsoListed":[]},{"id":"gsalr:38964019","source":"gsalr.com","url":"https://gsalr.com/garage-sale-arcadia-la-38964019.html","title":"Garage Sale","description":"Pioneer Woman\nMy Life Dolls & accessories\nBooks\nClothes\nChristmas Decor\nToys","kind":"garage","address":"Hazel St","city":"Arcadia","lat":32.54017764,"lon":-92.92283213,"days":[{"date":"2026-10-16"},{"date":"2026-10-17"},{"date":"2026-10-18"}],"image":"https://gsf.tlstatic.com/image/w100-c10:7/2026/10/13/s/8/7/21793587/H7Eg-0.jpeg","alsoListed":[]},{"id":"cl:2e3gT2H3wyxuEpLM2gotbs","source":"Craigslist","url":"https://www.craigslist.org/view/d/shreveport-stupendous-rummage-sale/2e3gT2H3wyxuEpLM2gotbs","title":"Stupendous Rummage Sale!!","description":"Ellerbe Road Methodist Church\nis having a stupendous\nRummage Sale\nOct 16-17 (Fri-Sat)\n8am-1pm\nWe are bursting at the seams with Christmas decor! There's a lot of collectibles too!\nPlus decor, kitchen items, frames, candles, linens and bedding, vintage stuff, games and puzzles, kids toys, office items, jewelry, beauty, some furniture, health stuff, lamps, baskets, books, vases, fine art and wall decor, and MORE.\nPlus an electric adjustable hospital bed in excellent condition for only $150.\nCASH ONLY\n10130 Ellerbe Church Road\nShreveport\n*Photos will be added Thursday evening","kind":"garage","address":"10130 Ellerbe Church Road near Ellerbe Road","city":"Shreveport","lat":32.385684,"lon":-93.718057,"days":[{"date":"2026-10-16"},{"date":"2026-10-17"}],"alsoListed":[]},{"id":"cl:5wwgiRLGmnYxzcapesntts","source":"Craigslist","url":"https://www.craigslist.org/view/d/barksdale-afb-garage-sale/5wwgiRLGmnYxzcapesntts","title":"Garage Sale","description":"Clothes, tools, Hot Wheels cars and tracks, drums, Wilson golf clubs, decor, antique and vintage chairs and more.","kind":"garage","address":"2104 Starling Drive near Summerville","city":"Lafayette Park/Stockwell","lat":32.5594,"lon":-93.6388,"days":[{"date":"2026-10-17"}],"alsoListed":[]}],"sources":[{"source":"EstateSales.net","ok":true,"count":20},{"source":"gsalr.com","ok":true,"count":3},{"source":"Craigslist","ok":true,"count":2}],"defaults":{"keywords":[{"term":"music","priority":"normal"},{"term":"mid century","priority":"normal"},{"term":"computer","priority":"normal"},{"term":"vinyl","priority":"normal"}],"avoid":[],"radiusMiles":25,"route":{"departAt":"07:00","maxStops":8,"minutesPerStop":20,"includeGarageSales":true},"start":{"mode":"gps","address":""},"skipStops":[]}}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>"use strict";(()=>{var C={lat:32.5252,lon:-93.7502};function P(t,e){let s=Math.PI/180,r=(e.lat-t.lat)*s,a=(e.lon-t.lon)*s,d=Math.sin(r/2)**2+Math.cos(t.lat*s)*Math.cos(e.lat*s)*Math.sin(a/2)**2;return 2*3958.8*Math.asin(Math.sqrt(d))}function Z(t,e){return Math.max(3,Math.round(P(t,e)*1.35/28*60))}function c(t){return t.replace(/[&<>"']/g,e=>`&#${e.charCodeAt(0)};`)}var ft=t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");function K(t){let e=t.toLowerCase().trim().split(/[\s-]+/).filter(Boolean).map(n=>ft(n.replace(/(?<=\w\w)(es|s)$/,""))+"(?:e?s)?");return new RegExp(`\\b${e.join("[\\s-]*")}\\b`,"i")}function W(t,e){let n=`${t.title}
+${t.description}`,s=e.keywords.filter(i=>i.term.trim()&&K(i.term).test(n)).map(i=>({term:i.term,priority:i.priority})),r=e.avoid.filter(i=>i.trim()&&K(i).test(n)),a=s.reduce((i,m)=>i+(m.priority==="high"?10:4),0)-r.length*5;t.kind==="estate"&&(a+=2);let d=e.homeBase,p=d.lat!==void 0&&d.lon!==void 0&&t.lat!==void 0&&t.lon!==void 0?P({lat:d.lat,lon:d.lon},{lat:t.lat,lon:t.lon}):void 0;return{sale:t,score:a,hits:s,avoidHits:r,distanceMiles:p}}function R(t){return new Date(`${t}T12:00:00Z`).toLocaleDateString("en-US",{timeZone:"UTC",weekday:"short",month:"short",day:"numeric"})}function T(t){let[e,n]=t.split(":").map(Number);return(e??0)*60+(n??0)}function $(t){let e=Math.floor(t/60)%24,n=Math.round(t%60);return`${String(e).padStart(2,"0")}:${String(n).padStart(2,"0")}`}function f(t){let[e=0,n=0]=t.split(":").map(Number),s=e>=12?"PM":"AM",r=e%12===0?12:e%12;return n===0?`${r} ${s}`:`${r}:${String(n).padStart(2,"0")} ${s}`}var G=String.raw`(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?|(noon)`,kt=new RegExp(String.raw`(?:${G})\s*(?:-|–|—|to|til|till|until)\s*(?:${G})`,"i");var J={estate:["08:00","14:00"],other:["07:00","13:00"]};function j(t,e){let n=t.sale.days.find(a=>a.date===e);if(!n)return;let[s,r]=t.sale.kind==="estate"?J.estate:J.other;return{open:T(n.start??s),close:T(n.end??r),known:!!n.start}}function Y(t,e,n){let{departAt:s,maxStops:r,minutesPerStop:a,includeGarageSales:d}=n.route,p=n.homeBase,i=p.lat!==void 0&&p.lon!==void 0?{lat:p.lat,lon:p.lon}:C,m=T(s),k=t.filter(h=>h.sale.lat!==void 0&&h.sale.lon!==void 0&&j(h,e)&&h.avoidHits.length===0&&(d||h.sale.kind!=="garage")),S=[];for(;S.length<Math.min(r,10)&&k.length;){let h;if(k.forEach((I,ht)=>{let A=j(I,e),D=Z(i,{lat:I.sale.lat,lon:I.sale.lon}),N=m+D;if(N>A.close-20)return;let z=Math.max(0,A.open-N),V=D+z*.6-I.score*3;(!h||V<h.cost)&&(h={i:ht,cost:V,drive:D,arrive:N,wait:z,known:A.known})}),!h)break;let y=h,[w]=k.splice(y.i,1);if(!w)break;let l=j(w,e),g=y.arrive+y.wait,_=Math.min(w.sale.kind==="estate"?Math.max(a,30):a,l.close-g);S.push({match:w,arrive:$(g),leave:$(g+_),driveMinutes:y.drive,hoursKnown:y.known,waitMinutes:S.length===0?0:y.wait,open:$(l.open),close:$(l.close)}),m=g+_,i={lat:w.sale.lat,lon:w.sale.lon}}return S}function X(t){let e=t[0];return e?$(T(e.arrive)-e.driveMinutes):void 0}function Q(t,e){if(!t.length)return;let n=t.map(a=>`${a.match.sale.lat},${a.match.sale.lon}`),s=n.pop(),r=new URLSearchParams({api:"1",destination:s,travelmode:"driving"});return e&&r.set("origin",e),n.length&&r.set("waypoints",n.join("|")),`https://www.google.com/maps/dir/?${r}`}var tt={estate:"Estate sale",garage:"Yard sale",moving:"Moving sale",other:"Sale"},x=t=>t.id.replace(/[^\w-]/g,"_");function gt(t,e){let n=t.days.filter(s=>e.includes(s.date));return n.length?n.map(s=>`${R(s.date)}${s.start?` \xB7 ${f(s.start)}${s.end?`\u2013${f(s.end)}`:""}`:""}`).join("<br>"):"Dates not listed"}function et(t){let e=[t.address,t.city].filter(Boolean).join(", ");return e?c(e):"Address posted closer to the sale"}function nt(t,e){return t.hits.length?`<div class="hits">${t.hits.map(n=>`<span class="hit${n.priority==="high"?" high":""}">${e&&n.priority==="high"?"\u2605 ":""}${c(n.term)}</span>`).join("")}</div>`:""}function q(t,e){let n=t.sale,s=n.days.some(i=>i.date===e.target),r=n.description.length>320?`${n.description.slice(0,320).trimEnd()}\u2026`:n.description,a=n.lat!==void 0&&n.lon!==void 0?`https://www.google.com/maps/search/?api=1&query=${n.lat},${n.lon}`:void 0,d=[n.kind,s?"sat":"",t.hits.length?"match":""].filter(Boolean).join(" "),p=[{source:n.source,url:n.url},...n.alsoListed];return`<article class="card${t.hits.length?" is-match":""}" data-tags="${d}" id="${x(n)}">
+  ${n.image?`<img class="thumb" src="${c(n.image)}" alt="" loading="lazy">`:""}
+  <div class="card-body">
+    <div class="kicker"><span class="kind kind-${n.kind}">${tt[n.kind]}</span>${e.showDistance&&t.distanceMiles!==void 0?`<span class="dist">${t.distanceMiles.toFixed(1)} mi</span>`:""}</div>
+    <h3>${c(n.title)}</h3>
+    ${nt(t,!0)}
+    ${t.avoidHits.length?`<div class="avoid">Mentions: ${t.avoidHits.map(c).join(", ")}</div>`:""}
+    <dl>
+      <dt>When</dt><dd>${gt(n,e.windowDays)}</dd>
+      <dt>Where</dt><dd>${et(n)}${a?` <a href="${a}" target="_blank" rel="noopener">map</a>`:""}</dd>
+      ${n.organizer?`<dt>By</dt><dd>${c(n.organizer)}${n.phone?` \xB7 <a href="tel:${c(n.phone.replace(/[^\d+]/g,""))}">${c(n.phone)}</a>`:""}</dd>`:""}
+    </dl>
+    ${r?`<p class="desc">${c(r)}</p>`:""}
+    <div class="sources"><span>Verify:</span>${p.map(i=>`<a class="src" href="${c(i.url)}" target="_blank" rel="noopener">${c(i.source)} \u2197</a>`).join("")}</div>
+  </div>
+</article>`}function rt(t,e=!1){return t.map((n,s)=>{let r=n.match.sale,a=n.hoursKnown?`Open ${f(n.open)}\u2013${f(n.close)}`:`Hours not listed (assumed ${f(n.open)}\u2013${f(n.close)}), check the listing`;return`<li>
+      <span class="num">${s+1}</span>
+      <div class="it-body">
+        <div class="it-time">${f(n.arrive)} <span class="muted">\u2013 ${f(n.leave)}</span></div>
+        <a class="it-title" href="#${x(r)}">${c(r.title)}</a>
+        <div class="muted small">${et(r)}</div>
+        <div class="muted small">${tt[r.kind]} \xB7 ${a} \xB7 ~${n.driveMinutes} min drive${n.waitMinutes>5?` \xB7 ${n.waitMinutes} min wait for it to open`:""}</div>
+        ${nt(n.match,!1)}
+      </div>
+      ${e?`<button type="button" class="it-del" data-remove="${c(r.id)}" aria-label="Remove ${c(r.title)} from the trip" title="Remove from trip">\xD7</button>`:""}
+    </li>`}).join("")}function ot(t){let e=r=>`https://www.facebook.com/marketplace/shreveport/search/?query=${encodeURIComponent(r)}`,n=r=>`https://shreveport.craigslist.org/search/sss?query=${encodeURIComponent(r)}`,s=(r,a)=>`<a href="${c(r)}" target="_blank" rel="noopener">${c(a)}</a>`;return`<ul class="manual">
+    <li><strong>Facebook Marketplace</strong> \u2014 ${[s(e("garage sale"),"garage sale"),s(e("estate sale"),"estate sale"),...t.map(r=>s(e(r),r))].join(" \xB7 ")}</li>
+    <li><strong>Facebook groups</strong> \u2014 ${s("https://www.facebook.com/search/groups/?q=shreveport%20yard%20sale","Shreveport yard sale groups")} \xB7 ${s("https://www.facebook.com/search/groups/?q=bossier%20garage%20sale","Bossier garage sale groups")}</li>
+    <li><strong>Craigslist for-sale</strong> \u2014 ${t.length?t.map(r=>s(n(r),r)).join(" \xB7 "):s(n("estate"),"estate")}</li>
+    <li><strong>Nextdoor</strong> \u2014 ${s("https://nextdoor.com/for_sale_and_free/","For Sale & Free")}</li>
+  </ul>`}var B="saleFinder.settings.v1",o=t=>document.getElementById(t),v=JSON.parse(o("sale-data").textContent??"{}");function st(){try{let t=localStorage.getItem(B);if(!t)return;let e=JSON.parse(t);return{...v.defaults,...e,route:{...v.defaults.route,...e.route},skipStops:e.skipStops??[]}}catch{return}}function U(t){try{t?localStorage.setItem(B,JSON.stringify(t)):localStorage.removeItem(B)}catch{}}var u=st()??structuredClone(v.defaults);function at(t){let e=document.createElement("div");e.className="kw",e.innerHTML=`<button type="button" class="star" title="High priority" aria-pressed="${t.priority==="high"}">\u2605</button>
+    <input aria-label="Item" placeholder="Item, e.g. Pyrex" value="${c(t.term)}">
+    <button type="button" class="del" title="Remove" aria-label="Remove">\xD7</button>`;let n=e.querySelector(".star");return n.addEventListener("click",()=>n.setAttribute("aria-pressed",String(n.getAttribute("aria-pressed")!=="true"))),e.querySelector(".del").addEventListener("click",()=>e.remove()),e}function it(t){let e=document.createElement("span");return e.className="chip",e.dataset.word=t,e.innerHTML=`${c(t)}<button type="button" aria-label="Remove ${c(t)}">\xD7</button>`,e.querySelector("button").addEventListener("click",()=>e.remove()),e}function lt(t){o("kw-list").replaceChildren(...t.keywords.map(at)),o("avoid-list").replaceChildren(...t.avoid.map(it)),o("start-mode").value=t.start.mode,o("start-addr").value=t.start.address,o("depart").value=t.route.departAt,o("max-stops").value=String(t.route.maxStops),o("per-stop").value=String(t.route.minutesPerStop),o("radius").value=String(t.radiusMiles),o("yard").checked=t.route.includeGarageSales,dt(),o("saved-note").hidden=!st()}function vt(){let t=[...o("kw-list").querySelectorAll(".kw")].map(d=>({term:d.querySelector("input").value.trim(),priority:d.querySelector(".star").getAttribute("aria-pressed")==="true"?"high":"normal"})).filter(d=>d.term),e=[...o("avoid-list").querySelectorAll(".chip")].map(d=>d.dataset.word??"").filter(Boolean),n=o("start-mode").value,s=o("start-addr").value.trim(),r=(d,p,i=1/0)=>Math.min(i,Number(o(d).value)||p),a=n===u.start.mode&&(n==="gps"||s===u.start.address);return{keywords:t,avoid:e,radiusMiles:r("radius",25,150),route:{departAt:o("depart").value||"07:00",maxStops:r("max-stops",8,10),minutesPerStop:r("per-stop",20,120),includeGarageSales:o("yard").checked},start:{mode:n,address:s,...a?{lat:u.start.lat,lon:u.start.lon}:{}},skipStops:u.skipStops}}function dt(){let t=o("start-mode").value;o("start-addr-wrap").hidden=t!=="address"}function b(t){o("form-status").textContent=t}async function ct(t,e=!1){if(t.start.mode==="downtown"||!e&&t.start.lat!==void 0&&t.start.lon!==void 0)return t;if(t.start.mode==="gps"){if(b("Finding your location\u2026"),!navigator.geolocation)throw new Error("This browser can't share its location.");let r=await new Promise((a,d)=>navigator.geolocation.getCurrentPosition(a,d,{enableHighAccuracy:!1,timeout:15e3,maximumAge:6e5}));return{...t,start:{...t.start,lat:r.coords.latitude,lon:r.coords.longitude}}}if(!t.start.address)throw new Error("Enter a starting address, or pick another start.");b("Looking up the address\u2026");let n=`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&viewbox=-94.2,33.0,-93.3,32.1&q=${encodeURIComponent(t.start.address)}`,s=await(await fetch(n)).json();if(!s[0])throw new Error(`Couldn't find "${t.start.address}" on the map. Try adding the city.`);return{...t,start:{...t.start,lat:Number(s[0].lat),lon:Number(s[0].lon)}}}function wt(t){let e=t.start.lat!==void 0&&t.start.lon!==void 0?{lat:t.start.lat,lon:t.start.lon}:C;return{homeBase:{label:"Start",address:t.start.address,...e},radiusMiles:t.radiusMiles,keywords:t.keywords,avoid:t.avoid,route:t.route,showHomeOnPublicReport:!1,publishRepoDir:"",publicUrl:""}}var E,M;function yt(t,e,n,s){let r=o("map");if(typeof L>"u"){r.hidden=!0;return}E||(E=L.map(r,{scrollWheelZoom:!1}),L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"\xA9 OpenStreetMap"}).addTo(E),M=L.layerGroup().addTo(E)),M.clearLayers();let a=[];for(let p of s){let i=p.sale;L.circleMarker([i.lat,i.lon],{radius:6,color:p.hits.length?"#15803d":"#78716c",weight:2,fillOpacity:.5}).addTo(M).bindPopup(`<a href="#${x(i)}">${c(i.title)}</a>`),a.push([i.lat,i.lon])}let d=[[t.lat,t.lon]];L.marker([t.lat,t.lon],{icon:L.divIcon({className:"",html:'<div class="pin home">\u2302</div>',iconSize:[26,26]})}).addTo(M).bindPopup(c(e)),a.push([t.lat,t.lon]),n.forEach((p,i)=>{let m=p.match.sale;L.marker([m.lat,m.lon],{icon:L.divIcon({className:"",html:`<div class="pin">${i+1}</div>`,iconSize:[26,26]}),zIndexOffset:1e3}).addTo(M).bindPopup(`<b>${i+1}. ${f(p.arrive)}</b><br><a href="#${x(m)}">${c(m.title)}</a>`),d.push([m.lat,m.lon]),a.push([m.lat,m.lon])}),d.length>1&&L.polyline(d,{color:"#c2410c",weight:3,opacity:.8,dashArray:"6 6"}).addTo(M),E.fitBounds(a,{padding:[30,30],maxZoom:14})}var F=[];function H(t){let e=wt(t),n={lat:e.homeBase.lat,lon:e.homeBase.lon},s=t.start.lat!==void 0&&t.start.lon!==void 0,r=t.start.mode==="address"?t.start.address:t.start.mode==="gps"&&s?"your location":"Downtown Shreveport",a=v.sales.map(l=>W(l,e)).filter(l=>l.distanceMiles===void 0||l.distanceMiles<=t.radiusMiles).sort((l,g)=>g.score-l.score||(l.distanceMiles??99)-(g.distanceMiles??99)),d=new Set(t.skipStops),p=Y(a.filter(l=>!d.has(l.sale.id)),v.target,e);F=p;let i=a.filter(l=>l.hits.length&&!l.avoidHits.length).slice(0,8),m={target:v.target,windowDays:v.windowDays,showDistance:!0},k=a.filter(l=>l.sale.days.some(g=>g.date===v.target)).length;o("stats").innerHTML=`
+    <span class="stat"><b>${a.length}</b> sales within ${t.radiusMiles} mi</span>
+    <span class="stat"><b>${k}</b> open Saturday</span>
+    <span class="stat"><b>${i.length}</b> match the list</span>
+    <span class="stat"><b>${p.length}</b>-stop route</span>`,o("top").innerHTML=i.length?`<div class="grid">${i.map(l=>q(l,m)).join("")}</div>`:`<div class="empty">${t.keywords.length?"Nothing this weekend mentions the wish-list items in its listing text.":"Add items to the wish list above to see matches here."} Estate sales often have far more than they list, so check the photos.</div>`;let S=Q(p,t.start.mode==="address"?t.start.address:void 0),h=X(p);o("route-intro").innerHTML=p.length?`From <b>${c(r)}</b>. Every stop is timed to land inside that sale's open hours; drive times are estimates. Tap \xD7 to drop a stop and re-time the rest.`:t.skipStops.length&&t.route.maxStops===0?"You removed every stop. Restore some below, or raise Max stops.":"No Saturday sales with a map location in range. Try a bigger radius, or check back after the Saturday-morning update.",o("leave").hidden=!h,h&&(o("leave").innerHTML=`<span class="num">\u2302</span><div>Leave ${c(r)} at ${f(h)}${h>t.route.departAt?` <span class="muted small">(later than ${f(t.route.departAt)}, so you arrive as the first sale opens)</span>`:""}</div>`);let y=o("route-btn");y.hidden=!S,S&&(y.href=S),o("itinerary").innerHTML=rt(p,!0);let w=v.sales.filter(l=>d.has(l.id));o("removed").hidden=!w.length,o("removed").innerHTML=w.length?`Removed from the trip: ${w.map(l=>`<button type="button" data-restore="${c(l.id)}">\u21BA ${c(l.title)}</button>`).join("")}`:"",yt(n,r,p,a.filter(l=>l.sale.lat!==void 0&&!p.some(g=>g.match===l))),o("all").innerHTML=a.length?a.map(l=>q(l,m)).join(""):'<div class="empty">No sales in range.</div>',o("all-count").textContent=String(a.length),ut(),o("manual").innerHTML=ot(t.keywords.map(l=>l.term))}var O="all";function ut(){document.querySelectorAll("#all .card").forEach(t=>{t.hidden=O!=="all"&&!(t.dataset.tags??"").split(" ").includes(O)})}o("kw-add").addEventListener("click",()=>{let t=at({term:"",priority:"normal"});o("kw-list").append(t),t.querySelector("input").focus()});o("avoid-input").addEventListener("keydown",t=>{let e=t.target;t.key==="Enter"&&(t.preventDefault(),e.value.trim()&&o("avoid-list").append(it(e.value.trim())),e.value="")});o("start-mode").addEventListener("change",dt);o("search-form").addEventListener("submit",async t=>{t.preventDefault();let e=o("update");e.disabled=!0;try{u=await ct(vt()),U(u),H(u),b("Updated."),o("saved-note").hidden=!1,o("results").scrollIntoView({behavior:"smooth"})}catch(n){b(pt(n))}finally{e.disabled=!1}});function pt(t){return t instanceof Error?t.message:t&&typeof t=="object"&&"code"in t?"Couldn't get your location. Allow location access for this page, or pick another start.":String(t)}function mt(){U(u),o("saved-note").hidden=!1,o("max-stops").value=String(u.route.maxStops),H(u)}o("itinerary").addEventListener("click",t=>{let e=t.target.closest("[data-remove]")?.dataset.remove;e&&(u={...u,skipStops:[...u.skipStops,e],route:{...u.route,maxStops:Math.max(0,F.length-1)}},mt())});o("removed").addEventListener("click",t=>{let e=t.target.closest("[data-restore]")?.dataset.restore;e&&(u={...u,skipStops:u.skipStops.filter(n=>n!==e),route:{...u.route,maxStops:Math.min(10,F.length+1)}},mt())});o("reset").addEventListener("click",()=>{U(void 0),u=structuredClone(v.defaults),lt(u),H(u),b("Back to the default list.")});document.querySelectorAll(".filters button").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".filters button").forEach(e=>e.setAttribute("aria-pressed",String(e===t))),O=t.dataset.f??"all",ut()}));o("weekend").textContent=R(v.target);lt(u);H(u);u.start.mode==="gps"&&ct(u,!0).then(t=>{u=t,H(u),b("")}).catch(t=>b(`${pt(t)} Showing distances from downtown for now.`));})();
+</script>
+</body>
+</html>
